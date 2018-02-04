@@ -19,9 +19,9 @@
 
 		$("#options").html("<h1>Connect 4</h1>");
 		$("<input id='player1' type='text' maxlength='9' placeholder='Player 1' />").insertAfter("h1");
-		$("<br><select id='colorPlayer1'><option value='blue'>Blue</option><option value='purple'>Purple</option><option value='pink'>Pink</option></select><br>").insertAfter("#player1");
+		$("<br><select id='colorPlayer1'><option value='yellow'>Yellow</option><option value='green'>Green</option><option value='red'>Red</option><option value='blue'>Blue</option><option selected='selected' value='purple'>Purple</option><option value='pink'>Pink</option></select><br>").insertAfter("#player1");
 		$("<br><input id='player2' type='text' maxlength='9' placeholder='Player 2'/>").insertAfter("#colorPlayer1");
-		$("<br><select id='colorPlayer2'><option value='yellow'>Yellow</option><option value='green'>Green</option><option value='red'>Red</option></select><br>").insertAfter("#player2");
+		$("<br><select id='colorPlayer2'><option selected='selected' value='yellow'>Yellow</option><option value='green'>Green</option><option value='red'>Red</option><option value='blue'>Blue</option><option value='purple'>Purple</option><option value='pink'>Pink</option></select><br>").insertAfter("#player2");
 		$("<br><input id='columns' type='text' maxlength='2' placeholder='9 columns max' />").insertAfter("#colorPlayer2");
 		$("<br><input id='lines' type='text' maxlength='2' placeholder='9 lines max' />").insertAfter("#columns");
 		$("<br><input id='play' type='submit' value='Play' />").insertAfter("#lines");
@@ -45,6 +45,15 @@
 			firstLetter1 = parameters.player1[7];
 			firstLetter2 = parameters.player2[7];
 
+			if($("#colorPlayer1").val()==$("#colorPlayer2").val())
+			{
+				alert("Please choose two different colors");
+				$("#colorPlayer1").val("");
+				$("#colorPlayer2").val("");
+				nbGame = 0;
+				return false;
+			}
+
 			if ($("#player1").val().length > 0 && $("#player2").val().length > 0)
 			{
 				if ($("#player1").val() == $("#player2").val())
@@ -56,6 +65,7 @@
 					return false;
 				}
 			}
+
 
  			if ($("#player1").val().length > 0)
 	  		{
@@ -118,12 +128,8 @@
 		function getInfo()
 		{
 			myCol = $(td).attr("class");
-
 			numCol = myCol.split("-");
-
 			numCol = numCol[1] + "-" + numCol[2];
-
-			numCol1 = numCol[1];
 			numCol2 = numCol[2];
 		}
 
@@ -139,7 +145,7 @@
 					if (idPlayer == 1)
 					{
 						$(tdPlayer).data({"etat": "true", "player": idPlayer}).html(firstLetter1).css({"background" : colorP1}).css({"position" : "relative"}).css({"animation-name": "fall"}).css({"animation-duration": "0.2s"});
-						if (horizontal(idPlayer) || vertical(idPlayer) || diagonal(idPlayer))
+						if (horizontal(idPlayer) || vertical(idPlayer) || diagonal(idPlayer, {x: numCol[0], y: numCol2}))
 						{
 							$("#turn").html(parameters.player1 + " winner of this game").css({"color": colorP1, "font-weight": "bold"});
 							idPlayer = 0;
@@ -148,7 +154,7 @@
 						else
 						{
 							idPlayer = 2;
-							$("#turn").html(parameters.player2 + "\'s turn").css({"color": colorP2, "font-weight": "bold"});
+							$("#turn").html(parameters.player2 + "\'s turn").css({"color": colorP2, "font-weight": "bold", "text-shadow": "3px 1px black"});
 							break;
 						}
 					}
@@ -165,7 +171,7 @@
 						else
 						{
 							idPlayer = 1;
-							$("#turn").html(parameters.player1 + "\'s turn").css({"color": colorP1, "font-weight": "bold"});
+							$("#turn").html(parameters.player1 + "\'s turn").css({"color": colorP1, "font-weight": "bold", "text-shadow": "3px 1px black"});
 							break;
 						}
 					}
@@ -204,8 +210,11 @@
 			}
 		}
 
-		function diagonal(idPlayer)
+		function diagonal(idPlayer, coord)
 		{
+			var x = numeroLigne;
+			var y = numCol2;
+
 			if(idPlayer == 1)
 			{
 				parameters.player = parameters.player1;
@@ -215,23 +224,43 @@
 				parameters.player=parameters.player2;
 			}
 
-			var win = 0;
-			for (var x = 1; x <= parameters.numberOfColumns;x++)
+			var changeDiag= false;
+			var win = 1;
+			var continu = true;
+
+			var iY = +y + 1;
+			var iX = +x + 1;
+			console.log('ix est égal à ' + iX);
+			console.log('iy est égal à ' + iY);
+
+			while(continu)
 			{
-				if ($(".columns-" + x + "-" + x).data("player") === idPlayer)
+				console.log($(".columns-" + iX + "-" + iY));
+				if ($(".columns-" + iX + "-" + iY).data("player") === idPlayer)
 				{
 					win++;
-					if (win == 4)
-					{
-						alert(parameters.player + " won");
-						return true;
+					changeDiag ? iX-- : iX++;
+					changeDiag ? iY-- : iY++;
+				}
+				else {
+					//reset
+					if (changeDiag === false) {
+						iX = +x - 1;
+						iY = +y - 1;
 					}
+					// after checking second directiohn
+					if (changeDiag === true) {
+						console.log('je break');
+
+
+						// console.log('le count est à ' +  win	);
+						break;
+					}
+					changeDiag = true;
 				}
-				else
-				{
-					win = 0;
-				}
+				console.log('le count est à ' +  win	);
 			}
+			return ( win >= 4 ) ? true : false;
 		}
 
 		function vertical(idPlayer)
@@ -295,7 +324,10 @@
 
 		$("#replay").click(function()
 		{
+			if (nbGame == 1)
+			{
 			location.reload();
+		}
 		});
 	};
 })(jQuery);

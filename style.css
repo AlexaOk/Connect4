@@ -49,6 +49,8 @@ td
 	text-align: center;
 	font-size: 2em;
 	font-family: arial;
+  text-shadow: -3px 0px black;
+  color: white;
 }
 #options
 {
@@ -92,4 +94,7 @@ td
 	font-family: arial;
 	position: relative;
 	top: 25px;
+  font-size: 31px;
+margin-top: -500px;
+margin-left: 1300px;
 }
